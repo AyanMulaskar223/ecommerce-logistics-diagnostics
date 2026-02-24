@@ -1,14 +1,66 @@
+default_language_version:
+  python: python3.14
+
 repos:
-  # Strip notebook outputs before every commit — keeps PRs clean and diffs readable.
+  # ── 1. General File Hygiene ───────────────────────────────────────────────
+  # Standard hooks that fix universal code-quality issues before anything else.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # Ensures every file ends with a single newline (required by POSIX).
+      - id: end-of-file-fixer
+      # Removes invisible trailing spaces that pollute diffs.
+      - id: trailing-whitespace
+      # Enforces LF line endings consistently across macOS/Windows contributors.
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      # Validates pyproject.toml is parseable TOML before committing.
+      - id: check-toml
+      # Validates .pre-commit-config.yaml and .github/workflows/lint.yml.
+      - id: check-yaml
+      # Validates .vscode/settings.json, extensions.json, and the notebook.
+      # Excludes .vscode/ — those files are JSONC (comments allowed), which is
+      # not valid JSON and would cause false failures.
+      - id: check-json
+        exclude: ^\.vscode/
+      # Catches unresolved <<<<<<< HEAD merge conflict markers.
+      - id: check-merge-conflict
+      # Prevents filename collisions on case-insensitive systems (Windows/macOS).
+      - id: check-case-conflict
+      # Validates Python files are parseable AST before ruff even runs.
+      - id: check-ast
+        files: ^src/
+      # Catches forgotten debug breakpoints (pdb.set_trace, breakpoint()).
+      - id: debug-statements
+        files: ^src/
+      # SECURITY: blocks private key patterns from being committed.
+      # Critical for this project — Snowflake credentials live in .env.
+      - id: detect-private-key
+      # SAFETY: blocks any file >500 KB. The obt_cache.parquet must NEVER be
+      # committed (it's in .gitignore, but this is the hard enforcement layer).
+      - id: check-added-large-files
+        args: [--maxkb=500]
+
+
+  # ── 2. Jupyter Notebook Output Stripping ─────────────────────────────────
+  # Removes all cell outputs and execution counts before committing.
+  # This keeps PRs clean and prevents large base64 plot blobs in git history.
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
       - id: nbstripout
+        files: ^notebooks/
 
-  # Ruff: linter + formatter. Version must stay in sync with pyproject.toml.
+  # ── 3. Ruff — Linter & Formatter ─────────────────────────────────────────
+  # Replaces black, flake8, and isort. Config in pyproject.toml [tool.ruff].
+  # Version pinned here MUST match the ruff>=x.x.x in pyproject.toml dev deps.
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.2
     hooks:
+      # Lints and auto-fixes: unused imports, import order, pyupgrade rules.
       - id: ruff
         args: [--fix]
+        files: ^src/
+      # Formats code to 88-char line length with double quotes.
       - id: ruff-format
+        files: ^src/
