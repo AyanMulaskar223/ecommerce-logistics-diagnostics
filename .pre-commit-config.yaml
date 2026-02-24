@@ -1,0 +1,14 @@
+repos:
+  # Strip notebook outputs before every commit — keeps PRs clean and diffs readable.
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.8.1
+    hooks:
+      - id: nbstripout
+
+  # Ruff: linter + formatter. Version must stay in sync with pyproject.toml.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.2
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format

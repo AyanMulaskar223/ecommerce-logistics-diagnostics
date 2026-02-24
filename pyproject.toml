@@ -1,0 +1,41 @@
+[project]
+name = "ecommerce-logistics-diagnostics"
+version = "0.1.0"
+description = "Python EDA diagnosing a R$1.2M logistics bottleneck in the Olist e-commerce dataset using a dbt-modelled One Big Table."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "matplotlib>=3.10.8",
+    "pandas>=3.0.1",
+    "pandera>=0.29.0",
+    "python-dotenv>=1.2.1",
+    "seaborn>=0.13.2",
+    "snowflake-connector-python>=4.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "nbstripout>=0.9.1",
+    "pre-commit>=4.5.1",
+    "ruff>=0.15.2",
+]
+
+[tool.ruff]
+# Match the 88-char ruler set in .vscode/settings.json.
+line-length = 88
+target-version = "py314"
+
+[tool.ruff.lint]
+# E/W = pycodestyle, F = pyflakes, I = isort, UP = pyupgrade
+select = ["E", "W", "F", "I", "UP"]
+ignore = [
+    "E501",  # line-too-long — handled by the formatter, not the linter
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+# Use double quotes everywhere (matches copilot-instructions.md standard).
+quote-style = "double"
+indent-style = "space"

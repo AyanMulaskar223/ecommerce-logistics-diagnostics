@@ -1,0 +1,36 @@
+{
+  "recommendations": [
+    // ── Core Python ──────────────────────────────────────────────────────────
+    // Python language support + debugger.
+    "ms-python.python",
+    // Pylance: powers IntelliSense, type checking, and Go-to-Definition
+    // for the strict type hints required in src/.
+    "ms-python.vscode-pylance",
+    // ── Jupyter Notebooks ────────────────────────────────────────────────────
+    // Full Jupyter notebook support (run cells, variable explorer, etc.).
+    "ms-toolsai.jupyter",
+    // Adds cell tags for organising the notebook narrative arc (Q1–Q4).
+    "ms-toolsai.vscode-jupyter-cell-tags",
+    // ── Linting & Formatting ─────────────────────────────────────────────────
+    // Ruff: replaces black, flake8, and isort. Configured via pyproject.toml.
+    "charliermarsh.ruff",
+    // ── Environment & Secrets ────────────────────────────────────────────────
+    // Syntax highlighting + autocomplete for the .env file (Snowflake creds).
+    "mikestead.dotenv",
+    // ── Git & GitFlow Workflow ───────────────────────────────────────────────
+    // GitLens: inline blame, branch history — essential for the GitFlow ADLC.
+    "eamodio.gitlens",
+    // Native GitHub PR & Issues panel for the Issue → Branch → PR workflow.
+    "GitHub.vscode-pull-request-github",
+    // ── Code Quality ──────────────────────────────────────────────────────────
+    // Spell checker for docstrings — enforces the Google-style docstring
+    // standard required in all src/ functions.
+    "streetsidesoftware.code-spell-checker"
+  ],
+  // SQLFluff is a SQL linter for raw .sql files. This project has no SQL files —
+  // all SQL is managed by dbt upstream in a separate repository. Marking it as
+  // unwanted suppresses the "executable not found" warning for every contributor.
+  "unwantedRecommendations": [
+    "dorzey.vscode-sqlfluff"
+  ]
+}

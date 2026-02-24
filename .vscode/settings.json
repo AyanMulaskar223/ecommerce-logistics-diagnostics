@@ -1,0 +1,94 @@
+{
+  // ── Python Environment ───────────────────────────────────────────────────
+  // Absolute path to the uv-managed venv. VS Code does not reliably resolve
+  // relative paths or ${workspaceFolder} for this specific setting.
+  "python.defaultInterpreterPath": "/Users/macbookair/ecommerce-logistics-diagnostics/.venv/bin/python",
+  // Auto-activates the venv in every NEW terminal opened in this workspace.
+  "python.terminal.activateEnvironment": true,
+  // Also activates in the CURRENT terminal if it isn't a fresh one.
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  // Fallback: directly injects the venv bin directory into PATH for every
+  // integrated terminal, even if the Python extension activation fires late.
+  "terminal.integrated.env.osx": {
+    "VIRTUAL_ENV": "/Users/macbookair/ecommerce-logistics-diagnostics/.venv",
+    "PATH": "/Users/macbookair/ecommerce-logistics-diagnostics/.venv/bin:${env:PATH}"
+  },
+  // ── Pylance / Type Checking ───────────────────────────────────────────────
+  // "basic" enforces our type-hint standard without being overly strict.
+  // extraPaths lets Pylance resolve `from src.diagnostic_utils import …`
+  // without needing an editable install.
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}"
+  ],
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.inlayHints.functionReturnTypes": true,
+  "python.analysis.inlayHints.variableTypes": false,
+  // ── Ruff — Formatter & Linter ─────────────────────────────────────────────
+  // Ruff replaces black, flake8, and isort. All config lives in pyproject.toml.
+  "editor.defaultFormatter": "charliermarsh.ruff",
+  "python.formatting.provider": "none",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  // Ruff cannot format JSON or JSONC — use VS Code's built-in formatter instead.
+  // This prevents the "cannot format JSON with Comments" warning on settings.json
+  // and extensions.json themselves.
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "ruff.configuration": "${workspaceFolder}/pyproject.toml",
+  // ruff.lint.run is a legacy ruff-lsp setting — removed to suppress deprecation warning.
+  // The native Ruff extension lints on save automatically via codeActionsOnSave below.
+  // ── Format & Fix on Save ──────────────────────────────────────────────────
+  // Hitting Cmd+S will: format code, sort imports, remove unused imports.
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  // ── Editor Hygiene ────────────────────────────────────────────────────────
+  // 88-char ruler matches the Ruff line-length in pyproject.toml.
+  "editor.rulers": [
+    88
+  ],
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  // ── Jupyter Notebook ──────────────────────────────────────────────────────
+  // autoreload means edits to src/diagnostic_utils.py are picked up
+  // in the notebook kernel instantly — no restart required.
+  "jupyter.runStartupCommands": [
+    "%load_ext autoreload",
+    "%autoreload 2"
+  ],
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "notebook.output.textLineLimit": 60,
+  "notebook.lineNumbers": "on",
+  "[jupyter]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  // ── Explorer: Hide noise ──────────────────────────────────────────────────
+  // Hides build artefacts from the file tree. data/raw is READ-ONLY —
+  // no need to browse it; always access via pd.read_parquet().
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.ruff_cache": true,
+    "**/.venv": true,
+    "**/.pytest_cache": true,
+    "**/*.egg-info": true
+  },
+  // ── Search: Exclude binary / generated paths ──────────────────────────────
+  "search.exclude": {
+    "**/.venv": true,
+    "**/data/raw": true,
+    "**/*.parquet": true,
+    "**/.ruff_cache": true,
+    "**/__pycache__": true
+  }
+}
