@@ -90,5 +90,9 @@
     "**/*.parquet": true,
     "**/.ruff_cache": true,
     "**/__pycache__": true
+  },
+  "workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "file:/**/*.parquet": "jupyter-data-wrangler"
   }
 }
