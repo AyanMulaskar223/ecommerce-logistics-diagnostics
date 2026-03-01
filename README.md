@@ -80,31 +80,31 @@
 ## 1️⃣ Executive Summary
 
 > **TL;DR:** Phase 1 Power BI AI hallucinated a crisis in Amazonas (3 orders).
-> Phase 2 proved the **real** R$ 1.13M crisis lives in São Paulo & Rio de Janeiro,
-> diagnosed its root cause as carrier infrastructure failure (not package weight),
-> and traced delayed deliveries all the way to permanent CLV destruction.
+> Phase 2 proved the **real R$ 1.13M crisis** lives in **São Paulo & Rio de Janeiro**,
+> diagnosed its root cause as **carrier infrastructure failure** (not package weight),
+> and traced delayed deliveries all the way to **permanent CLV destruction**.
 
-### 🚨 The Problem Phase 1 Left Unsolved
+### 🚨 The Gap Phase 1 Left Open
 
-The Power BI AI Decomposition Tree surfaced two critical signals — but answered neither:
+The Power BI AI Decomposition Tree surfaced two signals — but could not explain either:
 
-| Signal | Phase 1 Output | What Was Still Unknown |
+| Signal | Phase 1 Output | The Open Question |
 | :--- | :--- | :--- |
-| **Logistics Crisis** | 66.7% delivery failure rate in Amazonas flagged as #1 bottleneck | Is this real? Where is the actual financial damage? What's causing it? |
-| **Retention Crisis** | 97% of customers never make a second purchase | At what delay threshold does repurchase probability collapse to zero? |
+| **Logistics Crisis** | 66.7% delay rate in Amazonas flagged as #1 bottleneck | Is this real? Where is the *actual* financial damage? What's the root cause? |
+| **Retention Crisis** | **97%** of customers never make a second purchase | At what delay threshold does repurchase probability **permanently collapse**? |
 
 ---
 
-### 🔍 The Phase 2 Discoveries
+### 🔍 The Phase 2 Verdicts
 
-A Python diagnostic pipeline running across **108,533 quality-gated orders** (Pandera-validated) overturned the Phase 1 narrative on every hypothesis:
+A Python diagnostic pipeline across **108,533 quality-gated orders** overturned the Phase 1 narrative on every hypothesis:
 
-| Phase 1 Hypothesis | Phase 2 Verdict | Method |
-| :--- | :--- | :--- |
-| Amazonas is the logistics crisis | ❌ **Statistical artefact** — $n = 3$ orders | Pandera DQ row-count gate |
-| The bottleneck is geographic | ✅ **Confirmed — but SP & RJ, not AM** — 48% of R$ 1.13M at risk | Q1 bivariate revenue-by-state analysis |
-| Heavy packages cause RJ's failure | ❌ **Rejected** — weight explains ~0.12% of delay variance (r² = 0.034²) | Q2 Pearson $r = 0.034$; weight × region interaction test |
-| Delay linearly produces 1-star reviews | ❌ **Rejected** — scores hold ≥ 3.3 up to 7d late; cliff at 14d | Q3 non-linear threshold binning |
+| Phase 1 Hypothesis | Phase 2 Verdict |
+| :--- | :--- |
+| Amazonas is the logistics crisis | ❌ **Statistical artefact** — $n = 3$ orders · Amazonas doesn't appear in the Top 10 revenue-at-risk states |
+| Geographic bottleneck = Amazonas | ✅ **Real — but SP & RJ, not AM** · SP + RJ hold **48% of R$ 1,134,271** at risk |
+| Heavy packages cause RJ's failure | ❌ **Rejected** — weight explains **<0.12% of delay variance** (Pearson r = 0.034) |
+| Delay linearly erodes satisfaction | ❌ **Rejected** — scores hold ≥ 3.3 up to 7d late; **cliff edge at the 14-day red line** |
 
 <details>
 <summary>📊 <strong>Evidence 1 — Where the Real Money Is Bleeding (Revenue at Risk by State)</strong></summary>
@@ -123,8 +123,8 @@ Amazonas — the Phase 1 "crisis" — doesn't appear in the top 10.*
 
 ![Review Score Collapse by Delay Bracket](visuals/q3_review_threshold.png)
 
-*Mean score holds above 3.3 for delays ≤ 7 days. It crosses the 2.5 danger threshold
-at the "Late 15–21d" bracket — this is the exact SLA red line that defines Q4's cohort split.*
+*Mean score holds above 3.3 for delays ≤ 7 days. Crosses the 2.5 danger threshold
+at the "Late 15–21d" bracket — the exact SLA red line that defines Q4's cohort split.*
 
 </details>
 
@@ -143,20 +143,15 @@ than on-time Cohort A — the R$ cost of every carrier underperformance incident
 
 ### 🔗 The Causal Chain — End to End
 
-Every link below was independently validated with order-level data. No assumption was carried forward unproven.
+Every link was independently validated with order-level data. No assumption was carried forward unproven.
 
-```
-Q1 ── SP + RJ = 48% of R$ 1.13M at risk (6.6% of all valid-order revenue)
-        │
-        └── Q2 ── Root cause = carrier infrastructure gap, NOT package weight
-                   RJ sits ~5 days slower than SP at EVERY weight quartile (r² ≈ 0.12%)
-                        │
-                        └── Q3 ── The 14-day red line: mean score < 2.5 at "Late 15–21d"
-                                   34% of blast-zone customers go silent — the invisible churn
-                                        │
-                                        └── Q4 ── Blast-zone RPR → near-zero
-                                                   CLV permanently destroyed per customer
-```
+> **Q1** — SP + RJ hold **48% of R$ 1,134,271** at risk · OTDR **93.4%** vs. 95% SLA
+>
+> ↳ **Q2** — Root cause: **carrier infrastructure gap**, not package weight · r² = **0.12%** · RJ sits ~5d slower at every weight quartile
+>
+> ↳ **Q3** — The **14-day red line**: mean score collapses to **< 2.5** · **34% of blast-zone customers go silent** — invisible to 1-star monitoring
+>
+> ↳ **Q4** — Blast-zone RPR → **near-zero** · **CLV permanently destroyed** · the causal chain is closed and quantified
 
 ---
 
@@ -271,6 +266,18 @@ nbstripout...............................................................Passed
 > This project is not just a data analysis — it is built to **enterprise production standards**.
 > Each sub-section below documents a deliberate engineering decision, contrasted against the junior path, with a **quantified ROI front and center**.
 
+> **7 engineering capabilities — each documented, evidence-backed, and ROI-quantified:**
+>
+> | # | Capability | Key Metric / ROI |
+> | :---: | :--- | :--- |
+> | 🏗️ | **Layered dbt Architecture** — Kimball Star Schema → Marts OBT → Pandas | **~300 lines of wrangling eliminated** · analysis starts day 0 |
+> | 🔒 | **Fail-Loud Data Quality** — dbt tests + Pandera contracts + DQ flag filter | **34 dbt tests · 36 Pandera checks** · 1,664 ghost rows isolated |
+> | 💰 | **FinOps + MemoryOps + Vectorised Ops** — Parquet cache · PyArrow pruning | **$0 EDA warehouse cost** · 39 MB → 22 MB **(−44%)** · **100× faster** transforms |
+> | ♻️ | **Modular DRY Stack** — `src/diagnostic_utils.py` · `uv.lock` reproducibility | **1,410-line typed library** · `uv sync` = identical env on every machine |
+> | 🔁 | **Analytics SDLC + CI/CD** — GitFlow · 15 pre-commit hooks · GitHub Actions | **0 credentials ever committed** · PR physically blocked until ruff is green |
+> | 📐 | **Cross-Platform KPI Governance** — DAX ↔ Pandas ↔ Snowflake SQL audit | **All 4 KPIs: 0 discrepancies** across 3 platforms |
+> | 🤖 | **AI-Assisted Workflow** — Copilot 5-layer context stack · ChatGPT Project | **~70% less AI output rework** · first-generation code is PR-ready |
+
 ---
 
 ### 🏗️ Layered dbt Architecture: Kimball Star Schema → dbt Marts OBT → Pandas
@@ -289,8 +296,6 @@ nbstripout...............................................................Passed
 - Single **OBT** (`obt_logistics_diagnostics`, **110,197 rows × 18 cols**) — all `JOIN`s pre-resolved
 - **dbt Exposure** in lineage DAG + **dbt Docs** live glossary for every OBT column
 
-> 🔧 **Implementation** — detail below ↓
-
 **`1` dbt Docs** (`dbt docs generate && dbt docs serve`) — every OBT column has **YAML description + business definition + test binding** → **single source of truth** across Python and Power BI. Each column definition is validated against the dbt test suite so there is **zero ambiguity** between what Power BI measures and what Python computes.
 
 **`2` 50-line SQL OBT model** (`models/marts/obt_logistics_diagnostics.sql`) — all `JOIN`s, type casts, derived flags pre-computed in dbt → **~300 lines of Pandas wrangling bypassed**, notebook opens to analysis on day one. OBT grain is **`order_id + order_item_id`** (line-item level) — date casts, delay calculations, and boolean flags all computed **once in SQL**, never re-derived in Python.
@@ -302,7 +307,7 @@ nbstripout...............................................................Passed
 <details>
 <summary>📸 <strong>Evidence — dbt Lineage Graph: Python EDA as a Registered dbt Exposure</strong></summary>
 
-![dbt Lineage Graph](assets/dbt_lineage_graph_obt_python_eda_exposure.png)
+![dbt Lineage Graph](assets/dbt_lineage.png)
 
 </details>
 
@@ -331,8 +336,6 @@ nbstripout...............................................................Passed
 - **Ghost Deliveries isolated, not deleted** — audit trail preserved, poison rows excluded from all KPIs
 - **Fail-loud** at every stage — `SchemaError` halts the kernel, never silently continues
 
-> 🔧 **Implementation** — detail below ↓
-
 **`1` dbt Staging Tests** (34 tests) — `not_null` · `unique` · `accepted_values` · `relationships` on every Fact + Dim → if upstream breaks, **Marts OBT never materialises** · Result: **34 passed · 1 warning · 0 errors**. Tests run in the Staging and Intermediate layers before the Marts OBT materialises — a broken upstream join or null key is caught at the warehouse level, not at Python runtime.
 
 **`2` Pandera Runtime Contract** (`coerce=False`) — validates 7 OBT column types, nullability, and value ranges on load → kernel **halts loudly** on `SchemaError` · Result: **36 checks passed**. Enforced columns: `order_id` (str, not null) · `price` (float, >0) · `review_score` (float, nullable, range 1–5) · `is_valid_logistics` / `is_valid_product` (int, `{0,1}`) — `coerce=False` means no silent type coercion ever.
@@ -354,14 +357,14 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 <details>
 <summary>📸 <strong>Evidence — dbt Test Results: 34 Passed, 1 Warning, 0 Errors</strong></summary>
 
-![dbt Test Results](assets/dbt_test_results_pass34_warn1.png)
+![dbt Test Results](assets/dbt_test_result.png)
 
 </details>
 
 <details>
-<summary>📸 <strong>Evidence — Pandera DQ Report: 36 Passed, 4 Warnings, 0 Errors</strong></summary>
+<summary>📸 <strong>Evidence — dbt test DQ Report of obt_logistics_diagnostics</strong></summary>
 
-![Pandera DQ Report](assets/obt_dq_report_pass36_warn4_error0.png)
+![Pandera DQ Report](assets/obt_test_report.png)
 
 </details>
 
@@ -389,8 +392,6 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 - **4 compounding optimisations** stacked before the first analysis cell runs
 - Snowflake cached **once** → `obt_cache.parquet` — **zero EDA credits** ever
 - **14 cols** via `engine="pyarrow"` · 3-pass MemoryOps · zero `.apply()` enforced by ruff in CI
-
-> 🔧 **Implementation** — detail below ↓
 
 **`1` FinOps Caching** — **`src/db_connection.py`** hits Snowflake **exactly once** → serialises to **`data/raw/obt_cache.parquet`** → **zero warehouse credits** during iterative EDA. Connection parameters are read from `.env` via `python-dotenv`; the cache is a **read-only local Parquet file** (gitignored — never committed; source of truth is Snowflake) — analysts never touch the warehouse connection directly during analysis.
 
@@ -427,8 +428,6 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 - **`src/diagnostic_utils.py`** (1,410 lines) — typed + docstring'd library, notebook is orchestration only
 - **`uv.lock`** guarantees `Python 3.14.2 + pandas 3.0.1 + pandera 0.29.0` bit-for-bit everywhere
 
-> 🔧 **Implementation** — detail below ↓
-
 **`1` dbt Pipeline Reuse** — `fct_order_items`, `dim_customers`, `dim_products` consumed directly via **`ref()`** in `models/marts/obt_logistics_diagnostics.sql`; **50-line OBT SQL** pre-computes all `JOIN`s → **~300 lines of Pandas wrangling eliminated**. dbt tracks the **full lineage automatically** — any upstream model change is immediately visible in the DAG.
 
 **`2` DRY `src/diagnostic_utils.py`** (**1,410 lines**) — typed library with **Google-style docstrings** (`Args:`, `Returns:`, `Raises:`); structured into **4 modules**: `schemas` (Pandera contracts) · `transforms` (MemoryOps + column helpers) · `plots` (all 9 chart functions) · `metrics` (KPI + cohort computations). `from src.diagnostic_utils import compute_rpr_cohort` works immediately → **zero duplicated logic**, onboarding **hours → minutes**.
@@ -457,8 +456,6 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 - **15 hooks** on every commit: ruff · `ruff-format` · `nbstripout` · `detect-private-key` · large-file guard
 - **GitHub Actions CI** blocks every PR until `ruff check` + `ruff format --check` both green
 
-> 🔧 **Implementation** — detail below ↓
-
 **Gate 1 — Pre-commit (local, runs on every `git commit`):**
 
 | Hook | Purpose |
@@ -485,14 +482,28 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 <details>
 <summary>📸 <strong>Evidence — GitHub Issue #1: Scoped Work Order (ADLC Entry Point)</strong></summary>
 
-![GitHub Issue #1](assets/github_issue_1_eda_root_cause_diagnostics.png)
+![GitHub Issue #1](assets/github_issue_milestone.png)
 
 </details>
 
 <details>
-<summary>📸 <strong>Evidence — Pre-commit Hooks: All 14 Passed on Feature Branch Commit</strong></summary>
+<summary>📸 <strong>Evidence — Pre-commit Hooks: All 15 Passed on Feature Branch Commit</strong></summary>
 
-![Pre-commit Hooks — All Passed](assets/pre_commit_hooks_all_passed_feat_commit.png)
+![Pre-commit Hooks — All Passed](assets/pre-commit.png)
+
+</details>
+
+<details>
+<summary>📸 <strong>Evidence — GitHub Actions CI: Ruff Lint Gate Green on PR</strong></summary>
+
+![GitHub Actions CI — Ruff Lint Gate](assets/ci_lint.png)
+
+</details>
+
+<details>
+<summary>📸 <strong>Evidence — Pull Request: Feature Branch → main (ADLC Gate 2)</strong></summary>
+
+![Pull Request — Feature Branch to main](assets/pull_request.png)
 
 </details>
 
@@ -513,8 +524,6 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 - **All 4 KPIs** reconciled for **mathematical identity** across DAX · Pandas · Snowflake SQL
 - **100% synchronisation — 0 discrepancies** found across all 3 platforms
 - Same DQ gate applied identically — **same population, same result**, R$1,134,271 every time
-
-> 🔧 **Implementation** — detail below ↓
 
 | KPI | Power BI DAX | Python (Pandas) | Snowflake SQL | |
 | :--- | :--- | :--- | :--- | :---: |
@@ -552,8 +561,6 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 - ChatGPT Project pre-loads dbt DAG + OBT schema + Phase 1 findings — **zero re-explaining**
 - **First-generation output is PR-ready** — vectorised ops, correct nulls, full docstrings, exec titles
 
-> 🔧 **Implementation** — detail below ↓
-
 | Layer | File / Tool | What It Enforces |
 | :--- | :--- | :--- |
 | **Repo Rules** | `.github/copilot-instructions.md` | Tech stack · zero `.apply()` · null handling rules · 88-char ruff limit — **auto-injected into every Copilot session** |
@@ -577,30 +584,28 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 
 ## 3️⃣ The Diagnostic Funnel — 4 Business Questions
 
-Each question builds **strictly on the evidence of the previous one**. No question
-is answered before its prerequisite is established.
+Each question builds **strictly on the evidence of the previous one.** No assumption is carried forward unproven.
+
+> **30-second summary — the whole story:**
+>
+> | Q | Business Question | Answer | Key Number |
+> | :---: | :--- | :--- | :--- |
+> | **Q1** | Where is the money bleeding? | **SP + RJ** hold 48% of all at-risk revenue | **R$ 1,134,271** at risk · OTDR **93.4%** (SLA: 95%) |
+> | **Q2** | Why is RJ failing? | **Carrier infrastructure gap** — weight is irrelevant | r² = **0.12%** · RJ ~**5d slower** at every weight quartile |
+> | **Q3** | When does the customer break? | **14-day red line** — score collapses below 2.5 | **43%** 1-star · **34% go silent** at Late 15–21d |
+> | **Q4** | What does failure cost in R$? | **Blast-zone RPR → near-zero** — CLV permanently destroyed | Cohort C repeat rate vs. Cohort A: **structural collapse** |
 
 ---
 
 ### Q1 · The Baseline — *"Where is the money bleeding?"*
 
-> **Question:** What is the statistical distribution of delivery delays and where is the  financial damage concentrated?
+> ⚡ **Verdict:** The crisis is **not** in Amazonas (n=3 orders). It is concentrated in **SP + RJ**, which together hold **48% of R$ 1,134,271** in at-risk revenue — from just two states.
 
-**Analytical approach:** Univariate delay distribution → Bivariate revenue-at-risk by state.
-
-**Key findings:**
-
-- **93.4% OTDR** — 1.6 pp below the 95% SLA target
-- **R$ 1,134,271** total revenue tied to delayed orders (6.6% of valid-order revenue)
-- **SP: R$ 298,076 (26%)** — the volume leader; 2,005 delayed orders
-- **RJ: R$ 247,835 (22%)** — the severity leader; OTDR ~87% vs. SP ~91.5%
-- **SP + RJ combined: 48%** of all at-risk revenue from just two states
-
-| Metric | SP | RJ | National Avg |
-| :--- | :--- | :--- | :--- |
-| OTDR | ~91.5% | ~87.0% | 93.4% |
-| Delayed Orders | 2,005 | 1,626 | — |
-| Revenue at Risk | R$ 298,076 | R$ 247,835 | — |
+| Metric | **SP** 🔴 Volume leader | **RJ** 🔴 Severity leader | National Avg |
+| :--- | :---: | :---: | :---: |
+| OTDR | ~91.5% | ~**87.0%** | 93.4% |
+| Delayed Orders | **2,005** | 1,626 | — |
+| Revenue at Risk | **R$ 298,076** (26%) | R$ 247,835 (22%) | — |
 
 <details>
 <summary>📊 <strong>Chart — Delay Severity Distribution</strong></summary>
@@ -620,26 +625,15 @@ is answered before its prerequisite is established.
 
 ### Q2 · The Root Cause — *"Why is RJ failing?"*
 
-> **Question:** Are deliveries to RJ failing purely due to geographic distance, or is physical package weight the actual bottleneck?
+> ⚡ **Verdict:** **Weight is irrelevant** (r² = 0.12%). RJ's failure is a **structural carrier infrastructure gap** — it sits ~5 days slower than SP at **every** weight quartile. Redirecting capital from packaging rules to **carrier SLA renegotiation** is the only lever that moves the number.
 
-**Analytical approach:** Bivariate (SP vs. RJ KPI comparison) → Bivariate (weight scatter) → Multivariate (weight × region interaction).
+| Hypothesis | Verdict | Evidence |
+| :--- | :---: | :--- |
+| H1: RJ has worse logistics KPIs than SP | ✅ **Confirmed** | RJ OTDR ~87% vs. SP ~91.5% |
+| H2: Heavy packages drive delays | ❌ **Rejected** | Pearson r = **0.034**, r² = **0.12%** |
+| H3: Weight × Region interaction amplifies RJ | ❌ **Rejected** | RJ uniformly **~5d above SP** at every weight quartile |
 
-**Three hypotheses tested:**
-
-| Hypothesis | Test | Result |
-| :--- | :--- | :--- |
-| H1: RJ has worse logistics KPIs than SP | SP vs. RJ comparison bar chart | ✅ Confirmed — RJ OTDR ~87% vs. SP ~91.5% |
-| H2: Heavy packages drive delays | Pearson r (weight vs. delay) in SP + RJ | ❌ Rejected — r = 0.034, r² < 1.5% |
-| H3: Weight × Region interaction amplifies RJ's problem | Weight quartile × region interaction bars | ❌ Rejected — RJ sits uniformly ~5d above SP at **every** weight quartile |
-
-**Root cause verdict:**
-> RJ underperforms because of **last-mile geographic complexity** — divided urban topology,
-> fewer fulfilment hubs, and lower carrier density relative to order volume.
-> **Weight plays no role.** The ~5-day structural lag is constant from a 100g phone case
-> to a 5kg appliance.
-
-**Executive directive:** Capital into **RJ carrier SLA renegotiation + hub investment** —
-not packaging weight restrictions.
+> 🎯 **Executive directive:** Capital into **RJ carrier SLA renegotiation + hub investment** — not packaging weight restrictions.
 
 <details>
 <summary>📊 <strong>Chart — SP vs. RJ KPI Comparison</strong></summary>
@@ -666,28 +660,19 @@ not packaging weight restrictions.
 
 ### Q3 · The Blast Radius — *"When does the customer reach their breaking point?"*
 
-> **Question:** At exactly what delay threshold does customer tolerance break and 1-star reviews spike?
-
-**Analytical approach:** Bivariate threshold analysis (mean score + % 1-star by delay bracket) → Multivariate stacked 100% bar (1-star vs. Silent vs. 2–5-star per bin).
-
-**Score deterioration by delay bracket:**
+> ⚡ **Verdict:** The **14-day red line.** Mean score holds ≥ 3.3 up to 7 days late, then enters freefall — crossing **2.5 at Late 15–21d.** **34% of blast-zone customers go completely silent** (no review, no return) — the invisible churn a 1-star-only strategy misses entirely.
 
 | Delay Bracket | Mean Score | % 1-Star | Status |
-| :--- | :--- | :--- | :--- |
+| :--- | :---: | :---: | :--- |
 | On-Time (≤0d) | ~4.2 | ~9% | ✅ Healthy baseline |
 | Late 1–3d | ~3.8 | ~16% | ⚠️ Mild dip |
 | Late 4–7d | ~3.3 | ~23% | ⚠️ 1-in-4 already a detractor |
 | Late 8–14d | ~2.8 | ~34% | 🔶 Brand trust cracking |
-| **Late 15–21d** | **~2.3** | **~43%** | **🚨 1-star blast zone entered** |
+| **Late 15–21d** | **~2.3** | **~43%** | **🚨 Red line crossed — blast zone** |
 | Late 22–30d | ~2.1 | ~48% | 🚨 Nearly half are 1-star |
 | Late 31+d | ~1.9 | ~54% | ❌ Majority 1-star — permanent detractors |
 
-**Key findings:**
-
-- **14-day SLA red line** confirmed — score crosses 2.5 at the "Late 15–21d" bracket
-- Delay is **NOT a binary trigger** — ratings degrade progressively
-- **~34% of blast-zone customers go Silent** (no review, no return) — the invisible churn
-- Silent Detractors peak at 15–21d; they don't write a review because they've already decided not to return
+> ⚠️ **34% of blast-zone customers go Silent** — no review because they've already decided never to return. Invisible in any 1-star-only monitoring strategy.
 
 <details>
 <summary>📊 <strong>Chart — Review Score Threshold (Dual-Axis)</strong></summary>
@@ -705,29 +690,23 @@ not packaging weight restrictions.
 
 ---
 
-### Q4 · The Action Plan — *"What does a logistics failure actually cost us in R$?"*
+### Q4 · The CLV Cost — *"What does a logistics failure actually cost in R$?"*
 
-> **Question:** If a customer experiences a blast-zone delay (>14d), what is the exact mathematical damage to their Repeat Purchase Rate and Customer Lifetime Value?
+> ⚡ **Verdict:** **Blast-zone RPR collapses to near-zero.** A customer who experiences a >14d delay has their repurchase probability **permanently destroyed** — not temporarily suppressed. The causal chain from carrier failure to CLV loss is complete and quantified end-to-end.
 
-**Cohort definition** (inherited from Q3's 14-day red line):
-
-| Cohort | Condition | Q3 Linkage |
+| Cohort | Condition | RPR Outcome |
 | :--- | :--- | :--- |
-| **A · On-Time** | Max delay ≤ 0d | Healthy baseline experience |
-| **B · Late-Recoverable** | Max delay 1–14d | Below blast threshold — brand damage still reversible |
-| **C · Blast-Zone** | Max delay > 14d | Red line crossed — mean score < 2.5, 43%+ 1-star |
+| **A · On-Time** | Max delay ≤ 0d | ✅ Healthy baseline RPR |
+| **B · Late-Recoverable** | Max delay 1–14d | ⚠️ Suppressed — brand damage still reversible |
+| **C · Blast-Zone** | Max delay > 14d | 🚨 **Near-zero** — relationship permanently ended |
 
-**Key findings:**
-
-- **Cohort C (Blast-Zone) RPR → near-zero** — logistics failure permanently ends the customer relationship
-- **Even Cohort B is suppressed** relative to Cohort A — every day of delay erodes repeat probability
-- **The CLV destruction equation:**
+**The CLV destruction equation:**
 
 $$\text{Blast-Zone Customers} \times \Delta R\$_{A \to C} = \text{Total CLV at Stake}$$
 
-- **The causal chain is complete and quantified:**
+**The causal chain — fully validated, end to end:**
 
-$$\text{Late Delivery} \xrightarrow{\text{Q2: geography}} \text{RJ }{\approx}13.2\text{d mean} \xrightarrow{\text{Q3: }> 14\text{d}} \text{1-Star Blast Zone} \xrightarrow{\text{Q4}} \text{RPR collapse} \rightarrow \text{CLV destroyed}$$
+$$\text{Carrier Underperformance} \xrightarrow{\text{Q1}} \text{SP + RJ: 48\% of R\$1.13M} \xrightarrow{\text{Q2: not weight}} \text{Infrastructure gap} \xrightarrow{\text{Q3: >14d}} \text{Blast Zone} \xrightarrow{\text{Q4}} \text{RPR} \to 0 \to \text{CLV destroyed}$$
 
 <details>
 <summary>📊 <strong>Chart — RPR by Delivery Cohort (A vs. B vs. C)</strong></summary>
@@ -749,61 +728,80 @@ $$\text{Late Delivery} \xrightarrow{\text{Q2: geography}} \text{RJ }{\approx}13.
 
 > Every recommendation maps directly to a Q1–Q4 finding. No action is proposed without supporting data.
 
+> ⚡ **Bottom line:** **P1 + P3 alone de-risk ~R$ 546k** and lift OTDR to ≥ 95% SLA. **P2 + P4 + P6 can launch within 14 days** — zero infrastructure spend required.
+
 ### Priority Matrix
 
-| # | Priority | Action | Chain Link Cut | Effort | Financial Impact | Timeline |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **P1** | 🚨 **CRITICAL** | Renegotiate RJ carrier SLAs — enforce ≤ 8-day mean delivery; add 1 fulfilment hub in RJ Norte | Q2 → RJ 13.2d mean delay | High (contracts) | R$ 247,835 de-risked | 60–90 days |
-| **P2** | 🚨 **CRITICAL** | Customer rescue protocol — auto-trigger R$ 20 voucher at Day +10 for any in-transit order | Q3 → prevents 14d threshold breach | Low (CRM) | Moves Cohort C → B; saves CLV | 14–30 days |
-| **P3** | ⚠️ **HIGH** | SP carrier capacity audit — 2,005 delayed orders (pure volume); add parallel fulfilment route | Q1 → SP R$ 298k exposure | Medium | R$ 298,076 de-risked | 30–60 days |
-| **P4** | ⚠️ **HIGH** | Silent Detractor re-engagement — 30-day post-delivery win-back email for Cohort C with no review | Q3 → 34% silent in blast zone | Low (marketing) | Convert silent churners | 14 days |
-| **P5** | 📊 **MEDIUM** | Loyalty programme for Cohort B — post-recovery cashback to convert recoverable-delay customers | Q4 → Cohort B RPR gap vs. Cohort A | Medium (product) | Close B-to-A RPR gap | 90 days |
-| **P6** | 📊 **MEDIUM** | Freight ratio alert — flag any seller with `freight/price > 25%` for carrier route review | Q1 → avg ratio 19.9% vs. 15% SLA | Low (monitoring) | Reduces per-order margin bleed | 14 days |
+| Priority | Action | Financial Impact | Timeline |
+| :--- | :--- | :--- | :---: |
+| 🚨 **P1 — CRITICAL** | Renegotiate **RJ carrier SLAs** — enforce ≤ 8-day mean delivery + 1 fulfilment hub in RJ Norte *(Q2)* | **R$ 247,835 de-risked** | 60–90 days |
+| 🚨 **P2 — CRITICAL** | **Customer rescue protocol** — auto-trigger R$ 20 voucher at Day +10 for every in-transit order *(Q3)* | Moves Cohort C → B · **CLV preserved** | **14–30 days** |
+| ⚠️ **P3 — HIGH** | **SP carrier capacity audit** — 2,005 delayed orders; add parallel fulfilment route *(Q1)* | **R$ 298,076 de-risked** | 30–60 days |
+| ⚠️ **P4 — HIGH** | **Silent Detractor re-engagement** — 30-day post-delivery win-back email for no-review Cohort C *(Q3)* | Converts **34% invisible churners** | **14 days** |
+| 📊 **P5 — MEDIUM** | **Loyalty programme for Cohort B** — post-recovery cashback to close the B → A RPR gap *(Q4)* | Closes **B-to-A RPR gap** | 90 days |
+| 📊 **P6 — MEDIUM** | **Freight ratio alert** — flag any seller `freight/price > 25%` for carrier route review *(Q1)* | Reduces per-order **margin bleed** | **14 days** |
 
-### Expected Outcomes (12 Months, All 6 Actions Implemented)
+> 🟢 **Quick wins — can start Monday, zero infrastructure:** P2 · P4 · P6 are all Low-effort CRM/monitoring actions directly mapped to the Q3 blast-zone findings.
+
+---
+
+### Expected Outcomes — 12 Months, All 6 Actions Implemented
+
+> ⚡ **If all 6 are implemented:** OTDR crosses the **95% SLA gate**, blast-zone orders drop by **~72%**, and RPR roughly **doubles** from 3% to ≥ 6–7%.
 
 | Metric | Current | Target | Driver |
 | :--- | :--- | :--- | :--- |
 | **RJ OTDR** | ~87.0% | ≥ 93% | P1 — Carrier SLA |
 | **SP OTDR** | ~91.5% | ≥ 94% | P3 — Capacity |
-| **Overall OTDR** | 93.4% | **≥ 95.0%** ✅ | P1 + P3 |
-| **Blast-Zone Orders** | ~7,147 | < 2,000 | P1 + P2 + P3 |
-| **Repeat Purchase Rate** | 3.0% | **≥ 6–7%** | P4 + P5 + loyalty |
+| **Overall OTDR** | 93.4% | **≥ 95.0%** ✅ SLA cleared | P1 + P3 |
+| **Blast-Zone Orders** | ~7,147 | **< 2,000** (↓ 72%) | P1 + P2 + P3 |
+| **Repeat Purchase Rate** | 3.0% | **≥ 6–7%** | P4 + P5 + Loyalty |
 | **Revenue at Risk** | R$ 1,134,271 | **< R$ 300,000** | P1 + P3 |
 
 ---
 
 ## 5️⃣ Key Analytical Decisions
 
-> The goal of this pipeline was not to run complex math for the sake of it, but to drive executive action. Here are the four key analytical decisions made to prioritize **Decision Science** over raw Data Science.
+> The goal was not complex math for its own sake — it was **executive action**. Every decision below traded statistical sophistication for business operability.
 
-### 🎯 1. Anchoring EDA to North Star KPIs
+| # | Decision | Business Impact |
+| :---: | :--- | :--- |
+| 🎯 **1** | Anchor EDA to North Star KPIs first | Every test moves a **specific SLA metric** — not a vague "pattern" |
+| 🚫 **2** | Override the AI flag on Amazonas (n=3) | Saved capital from being deployed to the **Amazon rainforest** |
+| 🔪 **3** | Hard thresholds > continuous regression | Produced the **14-day red line** — a number carriers can sign contracts against |
+| 👻 **4** | Weaponize `review_score` NaNs as signal | Revealed **34% silent churn** — invisible to any 1-star-only alert strategy |
 
-- **The Decision:** Establishing exact operational baselines (e.g., 93.4% OTDR) before running exploratory histograms or scatter plots.
+---
 
-- **The Rationale:** Junior analysts treat EDA like a fishing expedition to find "interesting" patterns. By anchoring the Python environment directly to the company's SLA targets, every statistical test was mathematically tied to moving a specific business metric.
-- **The Impact:** Framed the entire Python notebook as a direct solution to a boardroom crisis rather than an academic exercise.
+### 🎯 1. Anchor EDA to North Star KPIs — *not* fishing for "interesting" patterns
 
-### 🚫 2. Ignoring Amazonas (The Small-Sample Trap)
+> ⚡ **Impact:** Framed the notebook as a **boardroom crisis solution**, not an academic exercise. Every chart answers a pre-defined SLA question.
 
-- **The Decision:** Explicitly overriding the Phase 1 Power BI AI algorithm that flagged Amazonas (AM) as the primary logistics crisis.
+Baseline KPIs (93.4% OTDR, R$ 1,134,271 at-risk) were locked in *before* any histogram or scatter plot ran. Junior analysts fish for patterns; this pipeline **started from the answer** and worked backwards to the causal evidence.
 
-- **The Rationale:** The 66.7% delay rate in Amazonas was a statistical artefact based on $n = 3$ orders. Using the `pandera` row-count gate, this noise was aggressively filtered out.
-- **The Impact:** Prevented the business from deploying infrastructure capital to the Amazon rainforest, which would have yielded **zero measurable impact** on the national OTDR.
+---
 
-### 🔪 3. Actionable Thresholds > Continuous Regression
+### 🚫 2. Override the Phase 1 AI Flag on Amazonas — *the small-sample trap*
 
-- **The Decision:** Using discrete Cohort Analysis (Q4) and simple Pearson $r$ correlations (Q2) instead of building a multivariate linear regression model.
+> ⚡ **Impact:** Prevented infrastructure capital from being sent to the **Amazon rainforest** for **zero measurable OTDR gain**.
 
-- **The Rationale:** A regression model produces a continuous delay coefficient (e.g., "every hour adds $X$ churn risk"). However, an Operations Director cannot translate a continuous coefficient into a vendor contract; they need **discrete SLA tiers**.
-- **The Impact:** Identifying the exact **14-day threshold** gave the business a hard "Red Line" boundary—the exact format required to negotiate carrier contracts and trigger automated CRM rescue workflows.
+The Phase 1 Power BI AI Decomposition Tree flagged Amazonas (AM) as the primary crisis — a **66.7% delay rate**. The `pandera` row-count gate exposed the artefact: $n = 3$ orders. Overriding this with statistical rigor redirected focus to SP + RJ (3,631 combined delayed orders).
 
-### 👻 4. Weaponizing Missing Data (`review_score` NaNs)
+---
 
-- **The Decision:** Refusing to fill `review_score` `NaN` values with `0` or the dataset mean.
+### 🔪 3. Discrete Thresholds > Multivariate Regression
 
-- **The Rationale:** In e-commerce, a `NaN` review means the customer **chose not to review**. Filling this with a zero or an average would corrupt the mean score calculations. Instead, `NaN`s were explicitly grouped and analyzed as **"Silent Detractors."**
-- **The Impact:** Turned missing data into a diagnostic signal, revealing that 34% of blast-zone churners leave no review at all—proving that a 1-star-only retention strategy misses a third of the crisis.
+> ⚡ **Impact:** Produced the **14-day red line** — a hard contractual boundary that Operations can put directly into a carrier SLA or a CRM rescue trigger.
+
+A regression coefficient ("every hour of delay adds $X$ churn probability") is analytically correct but operationally useless. A VP of Operations cannot write "β = 0.034" into a vendor contract. Cohort Analysis (Q4) and Pearson $r$ (Q2) were chosen because their outputs are **discrete, signable, and automatable**.
+
+---
+
+### 👻 4. Weaponize `review_score` NaNs as a Diagnostic Signal
+
+> ⚡ **Impact:** Revealed that **34% of blast-zone churners leave no review** — a third of the crisis is **completely invisible** to any monitoring strategy built exclusively on 1-star alerts.
+
+`NaN` in e-commerce reviews means the customer **chose not to engage**. Filling with `0` or the dataset mean would corrupt every average score calculation. Instead, NaNs were preserved and explicitly cohorted as **Silent Detractors** — turning a data quality problem into the most actionable finding in the entire analysis.
 
 ---
 
@@ -870,18 +868,21 @@ visuals/                     exported PNG charts
 
 ## 7️⃣ About & Credentials
 
-**Ayan Mulaskar**
+### Ayan Mulaskar · *Self-Taught Data Analyst & Analytics Engineer*
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-ayanmulaskar-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ayanmulaskar/)
 [![GitHub](https://img.shields.io/badge/GitHub-AyanMulaskar223-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/AyanMulaskar223)
 
-This project is **Phase 2** of the Olist Modern Analytics Platform, a multi-phase
-end-to-end data engineering and analytics portfolio:
+**Self-learning practitioner** building production-grade analytics from the ground up — independently mastering **Snowflake data modelling**, **Python root-cause diagnostics**, **dbt layered architecture**, and **executive Power BI dashboards** through deliberate project-based learning.
+
+> Every tool in this stack was learned independently and immediately applied to a real business problem with real data. No bootcamp. No classroom. **The portfolio is the proof.**
+
+This project is **Phase 2** of the Olist Modern Analytics Platform:
 
 | Phase | Description | Stack |
 | :--- | :--- | :--- |
 | **Phase 1** | Executive Power BI Dashboard — KPI monitoring + AI Decomposition Tree | Power BI · DAX · Snowflake |
-| **Phase 2** ← *this repo* | Python EDA — Root-cause diagnostics of the R$1.13M bottleneck | Python · dbt · Pandera · Seaborn |
+| **Phase 2** ← *this repo* | Python EDA — Root-cause diagnostics of the R$ 1.13M bottleneck | Python · dbt · Pandera · Seaborn |
 
 ### 🏅 Certifications
 
@@ -891,13 +892,13 @@ end-to-end data engineering and analytics portfolio:
 [![GitHub Copilot](https://img.shields.io/badge/GitHub-Copilot%20Certified-181717?style=for-the-badge&logo=github&logoColor=white)](https://www.credly.com/badges/63879d7f-0958-442e-8cd0-fa110d0b7bf6/linked_in_profile)
 [![GitHub Foundations](https://img.shields.io/badge/GitHub-Foundations%20Certified-181717?style=for-the-badge&logo=github&logoColor=white)](https://www.credly.com/badges/64e29484-05b6-4d3c-a036-59884b26f7fc/linked_in_profile)
 
-| Certification | Issuer | Relevance to This Project |
-| :--- | :--- | :--- |
-| **SOL-C01 SnowPro® Associate: Platform Certification** | Snowflake | Underpins the Marts OBT warehouse layer — data modelling, FinOps caching, SQL KPI reconciliation |
-| **Python Data Associate** | DataCamp | Validates the Pandas · Pandera · SciPy · Seaborn analytical pipeline |
-| **dbt Fundamentals Badge** | dbt Labs | Covers the Staging → Intermediate → Marts layered architecture, `ref()` lineage, test suite, and dbt Docs used in Phase 1 + 2 |
-| **GitHub Copilot Certified** | GitHub | Context-stack prompt engineering — 5-layer AI governance applied throughout this project |
-| **GitHub Foundations Certified** | GitHub | GitFlow · Issues · PRs · Actions CI — the full ADLC applied in this repo |
+| Certification | Applied In This Project |
+| :--- | :--- |
+| **SOL-C01 SnowPro® Associate: Platform** | Marts OBT warehouse layer · FinOps caching · SQL KPI reconciliation |
+| **Python Data Associate** | Pandas · Pandera · SciPy · Seaborn analytical pipeline |
+| **dbt Fundamentals Badge** | Staging → Intermediate → Marts · `ref()` lineage · dbt test suite + Docs |
+| **GitHub Copilot Certified** | 5-layer AI governance · context-stack prompt engineering |
+| **GitHub Foundations Certified** | GitFlow · Issues · PRs · Actions CI — full ADLC lifecycle |
 
 ---
 
