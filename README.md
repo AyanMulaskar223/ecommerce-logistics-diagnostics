@@ -21,9 +21,42 @@
 
 ---
 
+## 📋 Table of Contents
+
+- [🎯 At-a-Glance: Key Business Impact](#-at-a-glance-key-business-impact)
+- [🧰 The Analytics Engineering Stack](#-the-analytics-engineering-stack)
+- [🏢 Business Problem & KPIs](#-business-problem--kpis)
+- [1️⃣ Executive Summary](#1️⃣-executive-summary)
+- [🚀 Quick Start](#-quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Step 1 — Clone & Install](#step-1--clone--install-30-seconds)
+  - [Step 2 — Configure Secrets](#step-2--configure-secrets-optional--cache-refresh-only)
+  - [Step 3 — Run the Notebook](#step-3--run-the-notebook)
+  - [Step 4 — Lint, Format & Pre-commit](#step-4--lint-format--pre-commit)
+- [2️⃣ Engineering Rigor in Analytics: Core Capabilities & ROI](#2️⃣-engineering-rigor-in-analytics-core-capabilities--roi)
+  - [🏗️ Layered dbt Architecture](#️-layered-dbt-architecture-kimball-star-schema--dbt-marts-obt--pandas)
+  - [🔒 Fail-Loud Data Quality](#-fail-loud-data-quality-dbt-test-suite--pandera-runtime-contracts--dq-flag-filter)
+  - [💰 FinOps, MemoryOps & Vectorised Ops](#-finops-memoryops--vectorised-ops-snowflake-caching--pyarrow-pruning--c-level-transforms)
+  - [♻️ Modular Data Stack & DRY Engineering](#️-modular-data-stack--dry-engineering-the-roi-of-reusing-a-tested-dbt-pipeline)
+  - [🔁 Analytics SDLC & CI/CD](#-analytics-sdlc--cicd-pre-commit--github-actions--gitflow)
+  - [📐 Cross-Platform KPI Governance](#-cross-platform-kpi-governance-dax--python--snowflake-holy-trinity)
+  - [🤖 AI-Assisted Workflow & Prompt Engineering](#-ai-assisted-workflow--prompt-engineering-copilot--chatgpt-on-a-5-layer-context-stack)
+- [3️⃣ The Diagnostic Funnel — 4 Business Questions](#3️⃣-the-diagnostic-funnel--4-business-questions)
+  - [Q1 · The Baseline — Where is the money bleeding?](#q1--the-baseline----where-is-the-money-bleeding)
+  - [Q2 · The Root Cause — Why is RJ failing?](#q2--the-root-cause----why-is-rj-failing)
+  - [Q3 · The Blast Radius — When does the customer break?](#q3--the-blast-radius----when-does-the-customer-reach-their-breaking-point)
+  - [Q4 · The CLV Cost — What does a failure cost in R$?](#q4--the-clv-cost----what-does-a-logistics-failure-actually-cost-in-r)
+- [4️⃣ Strategic Recommendations & Action Plan](#4️⃣-strategic-recommendations--action-plan)
+- [5️⃣ Key Analytical Decisions](#5️⃣-key-analytical-decisions)
+- [6️⃣ Project Structure & Documentation Hub](#6️⃣-project-structure--documentation-hub)
+- [7️⃣ About & Credentials](#7️⃣-about--credentials)
+- [📄 License](#-license)
+
+---
+
 ## 🎯 At-a-Glance: Key Business Impact
 
-| 🎯 Strategic Finding | 💡 The Insight | 💰 Financial / Operational Impact |
+| Strategic Finding | The Insight | Financial / Operational Impact |
 | :--- | :--- | :--- |
 | **Isolated the True Revenue Leak** | Disproved Phase 1 Amazonas hallucination; isolated crisis to SP & RJ. | **R$ 1.13M** in vulnerable revenue identified. |
 | **Diagnosed the Root Cause** | Proved physical weight is irrelevant (r² ≈ 0.12%); RJ is a structural carrier network failure. | Redirects capital from packaging restrictions to **RJ carrier SLA renegotiation**. |
@@ -57,8 +90,8 @@
 
 | | Crisis | Signal | Gap |
 | :--- | :--- | :--- | :--- |
-| 🔴 | **Logistics Bottleneck** | **66.7% delivery failure rate** flagged in Amazonas (Phase 1 AI) → real damage hidden in **SP + RJ: R$1.2M at risk** | BI quantified the exposure — **root cause unknown**. Is it carrier failure? Package weight? Geography? Capital allocation is blind without an answer. |
-| 🔴 | **"Leaky Bucket" Retention** | **97% of customers never make a second purchase** — the repurchase funnel is effectively empty | The causal link to delivery experience is unproven. **At what delay does CLV permanently collapse?** Unknown until order-level data is modelled. |
+| 🔴 | **Logistics Bottleneck** | **66.7% delay rate** in Amazonas (Phase 1 AI) → real damage hidden in **SP + RJ: R$ 1.13M at risk** | Root cause **unknown** — carrier failure? Weight? Geography? Capital allocation was blind. |
+| 🔴 | **"Leaky Bucket" Retention** | **97% of customers never make a second purchase** — repurchase funnel effectively empty | **At what exact delay does CLV permanently collapse?** Unknown until this pipeline. |
 
 > **Phase 2 mandate:** Run a Python diagnostic pipeline across **108,533 quality-gated orders** to isolate the specific variables — carrier geography, delay severity, review score thresholds — and map their **exact impact on Customer Lifetime Value (CLV)**.
 
