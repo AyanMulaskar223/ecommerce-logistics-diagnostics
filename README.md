@@ -24,7 +24,7 @@
 ## 📋 Table of Contents
 
 - [🚚 Olist Logistics Root-Cause Diagnostics](#-olist-logistics-root-cause-diagnostics)
-    - [Phase 2 — Python EDA · Diagnosing a R$ 1.13M Delivery Bottleneck](#phase-2--python-eda--diagnosing-a-r-113m-delivery-bottleneck)
+  - [Phase 2 — Python EDA · Diagnosing a R$ 1.13M Delivery Bottleneck](#phase-2--python-eda--diagnosing-a-r-113m-delivery-bottleneck)
   - [📋 Table of Contents](#-table-of-contents)
   - [🎯 At-a-Glance: Key Business Impact](#-at-a-glance-key-business-impact)
   - [🧰 The Analytics Engineering Stack](#-the-analytics-engineering-stack)
@@ -346,11 +346,11 @@ nbstripout...............................................................Passed
 - Single **OBT** (`obt_logistics_diagnostics`, **110,197 rows × 18 cols**) — all `JOIN`s pre-resolved
 - **dbt Exposure** in lineage DAG + **dbt Docs** live glossary for every OBT column
 
-**`1` dbt Docs** (`dbt docs generate && dbt docs serve`) — every OBT column has **YAML description + business definition + test binding** → **single source of truth** across Python and Power BI. Each column definition is validated against the dbt test suite so there is **zero ambiguity** between what Power BI measures and what Python computes.
-
-**`2` 50-line SQL OBT model** (`models/marts/obt_logistics_diagnostics.sql`) — all `JOIN`s, type casts, derived flags pre-computed in dbt → **~300 lines of Pandas wrangling bypassed**, notebook opens to analysis on day one. OBT grain is **`order_id + order_item_id`** (line-item level) — date casts, delay calculations, and boolean flags all computed **once in SQL**, never re-derived in Python.
-
-**`3` R$1,134,271 Revenue at Risk** — Power BI and notebook both consume **`fct_order_items` via `ref()`** → **zero conflicting figures** in executive meetings. A schema change to the Fact table propagates simultaneously to both consumers — discrepancies are **structurally impossible**.
+| Layer | What | Result |
+| :---: | :--- | :--- |
+| **`1`** dbt Docs | `dbt docs generate && serve` — YAML description + test binding for every OBT column → single source of truth across Python and Power BI | **Zero ambiguity** between tools |
+| **`2`** 50-line OBT SQL | All JOINs, type casts, and derived flags pre-computed at `order_id + order_item_id` grain — never re-derived in Python | **~300 lines Pandas wrangling eliminated** |
+| **`3`** R$1,134,271 via `ref()` | Power BI + notebook consume the same `fct_order_items` → schema changes propagate to both consumers simultaneously | **Discrepancies structurally impossible** |
 
 📈 **Impact:** `1` — **dbt lineage graph** makes every column traceable to its source model — **zero ambiguity, zero manual documentation**. `2` — **34 upstream tests** catch regressions before Python ever loads the file — **0 corrupt datasets reach analysts**. `3` — **1 OBT replaces ~300 lines** of manual wrangling — analysis starts on **day 0, not day 3**.
 
@@ -386,15 +386,12 @@ nbstripout...............................................................Passed
 - **Ghost Deliveries isolated, not deleted** — audit trail preserved, poison rows excluded from all KPIs
 - **Fail-loud** at every stage — wrong column type in Snowflake? dbt aborts. Wrong Python type? Kernel halts.
 
-**`0` dbt Native Data Contract** (`contract: enforced: true` in `obt_logistics_diagnostics.yml`) — **the earliest possible defence**: dbt enforces column names, data types, and constraints at **Snowflake materialisation time**, before any test runs. If the OBT SQL returns a column with the wrong type or drops a column, **dbt aborts the run immediately** — the broken model never reaches the warehouse. This is fundamentally different from dbt tests (which run *after* materialisation) and Pandera (which runs at Python load time). `contract: enforced: true` means the schema is a **hard physical contract with the warehouse**, not a soft check.
-
-
-
-**`1` dbt Staging Tests** (34 tests) — `not_null` · `unique` · `accepted_values` · `relationships` on every Fact + Dim → if upstream breaks, **Marts OBT never materialises** · Result: **34 passed · 1 warning · 0 errors**. Tests run in the Staging and Intermediate layers before the Marts OBT materialises — a broken upstream join or null key is caught at the warehouse level, not at Python runtime.
-
-**`2` Pandera Runtime Contract** (`coerce=False`) — validates 7 OBT column types, nullability, and value ranges on load → kernel **halts loudly** on `SchemaError` · Result: **36 checks passed**. Enforced columns: `order_id` (str, not null) · `price` (float, >0) · `review_score` (float, nullable, range 1–5) · `is_valid_logistics` / `is_valid_product` (int, `{0,1}`) — `coerce=False` means no silent type coercion ever.
-
-**`3` DQ Flag Filter** — `is_valid_logistics + is_valid_product` gate isolates **1,664 Ghost Deliveries** without deleting them → **108,533 governed rows (98.5%)**. The flags were computed upstream in the dbt Intermediate layer (`delivered_date IS NULL OR delivered_date < purchase_date` → Ghost) — this notebook inherits the definition, never re-derives it.
+| Layer | What | Result |
+| :---: | :--- | :--- |
+| **`0`** dbt Native Contract | `contract: enforced: true` in `obt_logistics_diagnostics.yml` — column types + names enforced at **Snowflake materialisation time**, before any test runs. Wrong type → **run aborts immediately** | Schema can never silently change shape |
+| **`1`** dbt Staging Tests | `not_null` · `unique` · `accepted_values` · `relationships` on every Fact + Dim → OBT never materialises on any upstream break | **34 passed · 1 warning · 0 errors** |
+| **`2`** Pandera Runtime | `coerce=False` — 7 cols, nullability + value ranges validated on Python load → `SchemaError` halts kernel | **36 checks passed** |
+| **`3`** DQ Flag Filter | `is_valid_logistics + is_valid_product` isolates Ghost Deliveries without deleting → audit trail fully preserved | **108,533 governed · 1,664 isolated** |
 
 ```python
 # Layer 3 — DQ Flag Filter: applied once, governs all Q1–Q4 analysis
@@ -407,6 +404,8 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 > ⚠️ If Pandera raises a `SchemaError`: **stop immediately** — do not proceed with downstream analysis on unvalidated data. Check the dbt Marts layer for upstream regressions.
 
 📈 **Impact:** `0` — **dbt contract** aborts materialisation on any schema deviation — **the OBT can never silently change shape**. `1` — **34 dbt tests** prevent broken pipelines from ever reaching Python. `2` — **Pandera caught the Phase 1 Amazonas hallucination** (`n=3` orders) before it corrupted a national KPI. `3` — **1,664 Ghost Deliveries excluded** — every KPI in Q1–Q4 is computed on physically valid orders only. **4 layers means a data defect must survive the warehouse, the test suite, the Python runtime, and the DQ flag gate** — the probability of a corrupt number reaching an executive is structurally near-zero.
+
+</details>
 
 <details>
 <summary>📸 <strong>Evidence — dbt Native Data Contract: <code>contract: enforced: true</code> on OBT</strong></summary>
@@ -456,13 +455,12 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 - Snowflake cached **once** → `obt_cache.parquet` — **zero EDA credits** ever
 - **14 cols** via `engine="pyarrow"` · 3-pass MemoryOps · zero `.apply()` enforced by ruff in CI
 
-**`1` FinOps Caching** — **`src/db_connection.py`** hits Snowflake **exactly once** → serialises to **`data/raw/obt_cache.parquet`** → **zero warehouse credits** during iterative EDA. Connection parameters are read from `.env` via `python-dotenv`; the cache is a **read-only local Parquet file** (gitignored — never committed; source of truth is Snowflake) — analysts never touch the warehouse connection directly during analysis.
-
-**`2` Columnar Pruning** — only **14 cols** loaded via **`engine="pyarrow"`** (dimensional metadata excluded) → **>60% smaller** payload on every read. Excluded columns: `product_length_cm`, `product_height_cm`, `product_width_cm`, `product_category_name_english`, `customer_zip_code_prefix`, `seller_zip_code_prefix` — **none required** to answer the 4 BQs.
-
-**`3` Three-Pass MemoryOps** — **`int64→int8`** · **`float64→float32`** · **`object→category`** → **39 MB → 22 MB (−44%)**. Pass order is deliberate: integer downcasting first (reduces index memory) → float (**largest absolute saving**) → object→category (eliminates string duplication in high-cardinality columns like **`seller_state`**).
-
-**`4` Zero `.apply()`** — every transform is vectorised (`df[col] > 0`, never `.apply(lambda x: ...)`) — enforced by **ruff rule `PD011`** in CI → **up to 100× faster**. Any contributor attempting `.apply()` gets a **hard pre-commit block** before the code ever reaches the notebook.
+| Optimisation | What | Result |
+| :---: | :--- | :--- |
+| **`1`** FinOps Caching | `src/db_connection.py` hits Snowflake exactly once → `data/raw/obt_cache.parquet` (read-only, gitignored) — analysts never touch the warehouse during EDA | **$0 warehouse cost** across all analysis runs |
+| **`2`** Columnar Pruning | 14 cols via `engine="pyarrow"` — 6 dimensional metadata cols excluded (none needed for Q1–Q4) | **>60% smaller** payload per read |
+| **`3`** Three-Pass MemoryOps | `int64→int8` → `float64→float32` → `object→category` — pass order is deliberate (integers first, then floats for largest saving, then categories) | **39 MB → 22 MB (−44%)** |
+| **`4`** Zero `.apply()` | All transforms vectorised (`df[col] > 0`) — ruff rule `PD011` enforces this in CI; contributors get a hard pre-commit block | **Up to 100× faster** transforms |
 
 📈 **Impact:** `1` — **Zero Snowflake credits** burned during iterative EDA — **$0 warehouse cost** for all Q1–Q4 analysis runs. `2` — **>60% RAM reduction** from columnar pruning — **39 MB → 22 MB (−44%)** before the first analysis cell runs. `3` — **100× faster transforms** vs `.apply()` — the difference between **seconds and OOM kill** on 100M rows. `4` — **4 stacked optimisations** compound: faster I/O + smaller memory + faster compute + zero regressions from contributors.
 
@@ -491,13 +489,12 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 - **`src/diagnostic_utils.py`** (1,410 lines) — typed + docstring'd library, notebook is orchestration only
 - **`uv.lock`** guarantees `Python 3.14.2 + pandas 3.0.1 + pandera 0.29.0` bit-for-bit everywhere
 
-**`1` dbt Pipeline Reuse** — `fct_order_items`, `dim_customers`, `dim_products` consumed directly via **`ref()`** in `models/marts/obt_logistics_diagnostics.sql`; **50-line OBT SQL** pre-computes all `JOIN`s → **~300 lines of Pandas wrangling eliminated**. dbt tracks the **full lineage automatically** — any upstream model change is immediately visible in the DAG.
-
-**`2` DRY `src/diagnostic_utils.py`** (**1,410 lines**) — typed library with **Google-style docstrings** (`Args:`, `Returns:`, `Raises:`); structured into **4 modules**: `schemas` (Pandera contracts) · `transforms` (MemoryOps + column helpers) · `plots` (all 9 chart functions) · `metrics` (KPI + cohort computations). `from src.diagnostic_utils import compute_rpr_cohort` works immediately → **zero duplicated logic**, onboarding **hours → minutes**.
-
-**`3` `uv.lock` Reproducibility** — **`uv sync`** is the only setup command → **zero `requirements.txt` drift**, fully reproducible builds in CI and locally. **`uv sync --frozen`** in GitHub Actions CI enforces the exact same package versions that passed local testing — **no version drift** between development and remote gate.
-
-**`4` Zero metric drift** — **R$1,134,271** sourced from the same **`fct_order_items` `ref()`** as Power BI → **exact match across all platforms**. Because both consumers use the same dbt source, a column rename or grain change propagates simultaneously — metric discrepancies are **structurally prevented**, not just checked.
+| Layer | What | Result |
+| :---: | :--- | :--- |
+| **`1`** dbt Pipeline Reuse | `ref()` in 50-line `obt_logistics_diagnostics.sql` pre-computes all JOINs — full lineage tracked automatically in DAG | **~300 lines Pandas wrangling eliminated** |
+| **`2`** `src/diagnostic_utils.py` | 1,410-line typed library — 4 modules: `schemas` · `transforms` · `plots` · `metrics` — Google-style docstrings throughout | Onboarding **hours → minutes** |
+| **`3`** `uv.lock` | `uv sync` = exact `Python 3.14.2 + pandas 3.0.1 + pandera 0.29.0` locally and in CI (`--frozen`) | **Zero "works on my machine" incidents** |
+| **`4`** Zero metric drift | R$1,134,271 sourced from same `fct_order_items` `ref()` as Power BI — column rename propagates to both consumers simultaneously | **Discrepancies structurally impossible** |
 
 📈 **Impact:** `1` — **~300 lines of wrangling replaced by 50-line SQL** — analysis starts on day 0, not day 3. `2` — **1,410-line typed `src/` library** with 4 modules: new contributor writes `from src.diagnostic_utils import ...` and is productive in **< 30 minutes**. `3` — **`uv sync` one command** = exact `Python 3.14.2 + pandas 3.0.1 + pandera 0.29.0` on every machine — **zero "works on my machine" incidents**. `4` — **R$1,134,271 matches Power BI exactly** — **zero number debates** in any executive meeting.
 
