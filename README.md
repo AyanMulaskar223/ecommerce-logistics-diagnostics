@@ -23,34 +23,51 @@
 
 ## 📋 Table of Contents
 
-- [🎯 At-a-Glance: Key Business Impact](#-at-a-glance-key-business-impact)
-- [🧰 The Analytics Engineering Stack](#-the-analytics-engineering-stack)
-- [🏢 Business Problem & KPIs](#-business-problem--kpis)
-- [1️⃣ Executive Summary](#1️⃣-executive-summary)
-- [🚀 Quick Start](#-quick-start)
-  - [Prerequisites](#prerequisites)
-  - [Step 1 — Clone & Install](#step-1--clone--install-30-seconds)
-  - [Step 2 — Configure Secrets](#step-2--configure-secrets-optional--cache-refresh-only)
-  - [Step 3 — Run the Notebook](#step-3--run-the-notebook)
-  - [Step 4 — Lint, Format & Pre-commit](#step-4--lint-format--pre-commit)
-- [2️⃣ Engineering Rigor in Analytics: Core Capabilities & ROI](#2️⃣-engineering-rigor-in-analytics-core-capabilities--roi)
-  - [🏗️ Layered dbt Architecture](#️-layered-dbt-architecture-kimball-star-schema--dbt-marts-obt--pandas)
-  - [🔒 Fail-Loud Data Quality](#-fail-loud-data-quality-dbt-test-suite--pandera-runtime-contracts--dq-flag-filter)
-  - [💰 FinOps, MemoryOps & Vectorised Ops](#-finops-memoryops--vectorised-ops-snowflake-caching--pyarrow-pruning--c-level-transforms)
-  - [♻️ Modular Data Stack & DRY Engineering](#️-modular-data-stack--dry-engineering-the-roi-of-reusing-a-tested-dbt-pipeline)
-  - [🔁 Analytics SDLC & CI/CD](#-analytics-sdlc--cicd-pre-commit--github-actions--gitflow)
-  - [📐 Cross-Platform KPI Governance](#-cross-platform-kpi-governance-dax--python--snowflake-holy-trinity)
-  - [🤖 AI-Assisted Workflow & Prompt Engineering](#-ai-assisted-workflow--prompt-engineering-copilot--chatgpt-on-a-5-layer-context-stack)
-- [3️⃣ The Diagnostic Funnel — 4 Business Questions](#3️⃣-the-diagnostic-funnel--4-business-questions)
-  - [Q1 · The Baseline — Where is the money bleeding?](#q1--the-baseline----where-is-the-money-bleeding)
-  - [Q2 · The Root Cause — Why is RJ failing?](#q2--the-root-cause----why-is-rj-failing)
-  - [Q3 · The Blast Radius — When does the customer break?](#q3--the-blast-radius----when-does-the-customer-reach-their-breaking-point)
-  - [Q4 · The CLV Cost — What does a failure cost in R$?](#q4--the-clv-cost----what-does-a-logistics-failure-actually-cost-in-r)
-- [4️⃣ Strategic Recommendations & Action Plan](#4️⃣-strategic-recommendations--action-plan)
-- [5️⃣ Key Analytical Decisions](#5️⃣-key-analytical-decisions)
-- [6️⃣ Project Structure & Documentation Hub](#6️⃣-project-structure--documentation-hub)
-- [7️⃣ About & Credentials](#7️⃣-about--credentials)
-- [📄 License](#-license)
+- [🚚 Olist Logistics Root-Cause Diagnostics](#-olist-logistics-root-cause-diagnostics)
+    - [Phase 2 — Python EDA · Diagnosing a R$ 1.13M Delivery Bottleneck](#phase-2--python-eda--diagnosing-a-r-113m-delivery-bottleneck)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [🎯 At-a-Glance: Key Business Impact](#-at-a-glance-key-business-impact)
+  - [🧰 The Analytics Engineering Stack](#-the-analytics-engineering-stack)
+  - [🏢 Business Problem \& KPIs](#-business-problem--kpis)
+    - [🚨 Two Crises, One Diagnostic Mission](#-two-crises-one-diagnostic-mission)
+    - [📐 The 4 KPIs](#-the-4-kpis)
+  - [1️⃣ Executive Summary](#1️⃣-executive-summary)
+    - [🚨 The Gap Phase 1 Left Open](#-the-gap-phase-1-left-open)
+    - [🔍 The Phase 2 Verdicts](#-the-phase-2-verdicts)
+    - [🔗 The Causal Chain — End to End](#-the-causal-chain--end-to-end)
+  - [🚀 Quick Start](#-quick-start)
+    - [Prerequisites](#prerequisites)
+    - [Step 1 — Clone \& Install *(~30 seconds)*](#step-1--clone--install-30-seconds)
+    - [Step 2 — Configure Secrets *(optional — cache refresh only)*](#step-2--configure-secrets-optional--cache-refresh-only)
+    - [Step 3 — Run the Notebook](#step-3--run-the-notebook)
+    - [Step 4 — Lint, Format \& Pre-commit](#step-4--lint-format--pre-commit)
+  - [2️⃣ Engineering Rigor in Analytics: Core Capabilities \& ROI](#2️⃣-engineering-rigor-in-analytics-core-capabilities--roi)
+    - [🏗️ Layered dbt Architecture: Kimball Star Schema → dbt Marts OBT → Pandas](#️-layered-dbt-architecture-kimball-star-schema--dbt-marts-obt--pandas)
+    - [🔒 Fail-Loud Data Quality: dbt Native Contract + dbt Tests + Pandera + DQ Flag Filter](#-fail-loud-data-quality-dbt-native-contract--dbt-tests--pandera--dq-flag-filter)
+    - [💰 FinOps, MemoryOps \& Vectorised Ops: Snowflake Caching · PyArrow Pruning · C-Level Transforms](#-finops-memoryops--vectorised-ops-snowflake-caching--pyarrow-pruning--c-level-transforms)
+    - [♻️ Modular Data Stack \& DRY Engineering: The ROI of Reusing a Tested dbt Pipeline](#️-modular-data-stack--dry-engineering-the-roi-of-reusing-a-tested-dbt-pipeline)
+    - [🔁 Analytics SDLC \& CI/CD: Pre-commit → GitHub Actions → GitFlow](#-analytics-sdlc--cicd-pre-commit--github-actions--gitflow)
+    - [📐 Cross-Platform KPI Governance: DAX → Python → Snowflake Holy Trinity](#-cross-platform-kpi-governance-dax--python--snowflake-holy-trinity)
+    - [🤖 AI-Assisted Workflow \& Prompt Engineering: Copilot + ChatGPT on a 5-Layer Context Stack](#-ai-assisted-workflow--prompt-engineering-copilot--chatgpt-on-a-5-layer-context-stack)
+  - [3️⃣ The Diagnostic Funnel — 4 Business Questions](#3️⃣-the-diagnostic-funnel--4-business-questions)
+    - [Q1 · The Baseline — *"Where is the money bleeding?"*](#q1--the-baseline--where-is-the-money-bleeding)
+    - [Q2 · The Root Cause — *"Why is RJ failing?"*](#q2--the-root-cause--why-is-rj-failing)
+    - [Q3 · The Blast Radius — *"When does the customer reach their breaking point?"*](#q3--the-blast-radius--when-does-the-customer-reach-their-breaking-point)
+    - [Q4 · The CLV Cost — *"What does a logistics failure actually cost in R$?"*](#q4--the-clv-cost--what-does-a-logistics-failure-actually-cost-in-r)
+  - [4️⃣ Strategic Recommendations \& Action Plan](#4️⃣-strategic-recommendations--action-plan)
+    - [Priority Matrix](#priority-matrix)
+    - [Expected Outcomes — 12 Months, All 6 Actions Implemented](#expected-outcomes--12-months-all-6-actions-implemented)
+  - [5️⃣ Key Analytical Decisions](#5️⃣-key-analytical-decisions)
+    - [🎯 1. Anchor EDA to North Star KPIs — *not* fishing for "interesting" patterns](#-1-anchor-eda-to-north-star-kpis--not-fishing-for-interesting-patterns)
+    - [🚫 2. Override the Phase 1 AI Flag on Amazonas — *the small-sample trap*](#-2-override-the-phase-1-ai-flag-on-amazonas--the-small-sample-trap)
+    - [🔪 3. Discrete Thresholds \> Multivariate Regression](#-3-discrete-thresholds--multivariate-regression)
+    - [👻 4. Weaponize `review_score` NaNs as a Diagnostic Signal](#-4-weaponize-review_score-nans-as-a-diagnostic-signal)
+  - [6️⃣ Project Structure \& Documentation Hub](#6️⃣-project-structure--documentation-hub)
+    - [Data Flow](#data-flow)
+  - [7️⃣ About \& Credentials](#7️⃣-about--credentials)
+    - [Ayan Mulaskar · *Self-Taught Data Analyst \& Analytics Engineer*](#ayan-mulaskar--self-taught-data-analyst--analytics-engineer)
+    - [🏅 Certifications](#-certifications)
+  - [📄 License](#-license)
 
 ---
 
@@ -304,7 +321,7 @@ nbstripout...............................................................Passed
 > | # | Capability | Key Metric / ROI |
 > | :---: | :--- | :--- |
 > | 🏗️ | **Layered dbt Architecture** — Kimball Star Schema → Marts OBT → Pandas | **~300 lines of wrangling eliminated** · analysis starts day 0 |
-> | 🔒 | **Fail-Loud Data Quality** — dbt tests + Pandera contracts + DQ flag filter | **34 dbt tests · 36 Pandera checks** · 1,664 ghost rows isolated |
+> | 🔒 | **Fail-Loud Data Quality** — dbt native contract + dbt tests + Pandera + DQ flag filter | **4 independent layers** · 34 dbt tests · 36 Pandera checks · 1,664 ghost rows isolated |
 > | 💰 | **FinOps + MemoryOps + Vectorised Ops** — Parquet cache · PyArrow pruning | **$0 EDA warehouse cost** · 39 MB → 22 MB **(−44%)** · **100× faster** transforms |
 > | ♻️ | **Modular DRY Stack** — `src/diagnostic_utils.py` · `uv.lock` reproducibility | **1,410-line typed library** · `uv sync` = identical env on every machine |
 > | 🔁 | **Analytics SDLC + CI/CD** — GitFlow · 15 pre-commit hooks · GitHub Actions | **0 credentials ever committed** · PR physically blocked until ruff is green |
@@ -353,9 +370,9 @@ nbstripout...............................................................Passed
 
 ---
 
-### 🔒 Fail-Loud Data Quality: dbt Test Suite + Pandera Runtime Contracts + DQ Flag Filter
+### 🔒 Fail-Loud Data Quality: dbt Native Contract + dbt Tests + Pandera + DQ Flag Filter
 
-> **Combines:** dbt Staging Test Suite (34 tests) · Pandera Runtime Contracts · **DQ Flag Filter** (`is_valid_logistics` · `is_valid_product`) · Ghost Delivery Isolation
+> **Combines:** dbt Native Data Contract (`contract: enforced: true`) · dbt Staging Test Suite (34 tests) · Pandera Runtime Contract · **DQ Flag Filter** (`is_valid_logistics` · `is_valid_product`) · Ghost Delivery Isolation
 
 **👶 Junior ❌**
 
@@ -365,9 +382,13 @@ nbstripout...............................................................Passed
 
 **👨‍💼 Senior ✅**
 
-- **3 independent DQ layers** in sequence: dbt Staging tests → Pandera contract → DQ Flag Filter
+- **4 independent DQ layers** in sequence: dbt native contract → dbt Staging tests → Pandera runtime → DQ Flag Filter
 - **Ghost Deliveries isolated, not deleted** — audit trail preserved, poison rows excluded from all KPIs
-- **Fail-loud** at every stage — `SchemaError` halts the kernel, never silently continues
+- **Fail-loud** at every stage — wrong column type in Snowflake? dbt aborts. Wrong Python type? Kernel halts.
+
+**`0` dbt Native Data Contract** (`contract: enforced: true` in `obt_logistics_diagnostics.yml`) — **the earliest possible defence**: dbt enforces column names, data types, and constraints at **Snowflake materialisation time**, before any test runs. If the OBT SQL returns a column with the wrong type or drops a column, **dbt aborts the run immediately** — the broken model never reaches the warehouse. This is fundamentally different from dbt tests (which run *after* materialisation) and Pandera (which runs at Python load time). `contract: enforced: true` means the schema is a **hard physical contract with the warehouse**, not a soft check.
+
+
 
 **`1` dbt Staging Tests** (34 tests) — `not_null` · `unique` · `accepted_values` · `relationships` on every Fact + Dim → if upstream breaks, **Marts OBT never materialises** · Result: **34 passed · 1 warning · 0 errors**. Tests run in the Staging and Intermediate layers before the Marts OBT materialises — a broken upstream join or null key is caught at the warehouse level, not at Python runtime.
 
@@ -385,7 +406,16 @@ df_valid = df.query("is_valid_logistics == 1 and is_valid_product == 1").copy()
 
 > ⚠️ If Pandera raises a `SchemaError`: **stop immediately** — do not proceed with downstream analysis on unvalidated data. Check the dbt Marts layer for upstream regressions.
 
-📈 **Impact:** `1` — **34 dbt tests** prevent broken pipelines from ever reaching Python. `2` — **Pandera caught the Phase 1 Amazonas hallucination** (`n=3` orders) before it corrupted a national KPI. `3` — **1,664 Ghost Deliveries excluded** — every KPI in Q1–Q4 is computed on physically valid orders only. In an audited environment, pointing to a schema version + dbt test log is the difference between a **defensible number** and a figure on a spreadsheet.
+📈 **Impact:** `0` — **dbt contract** aborts materialisation on any schema deviation — **the OBT can never silently change shape**. `1` — **34 dbt tests** prevent broken pipelines from ever reaching Python. `2` — **Pandera caught the Phase 1 Amazonas hallucination** (`n=3` orders) before it corrupted a national KPI. `3` — **1,664 Ghost Deliveries excluded** — every KPI in Q1–Q4 is computed on physically valid orders only. **4 layers means a data defect must survive the warehouse, the test suite, the Python runtime, and the DQ flag gate** — the probability of a corrupt number reaching an executive is structurally near-zero.
+
+<details>
+<summary>📸 <strong>Evidence — dbt Native Data Contract: <code>contract: enforced: true</code> on OBT</strong></summary>
+
+![dbt Data Contract](assets/dbt_data_contract.png)
+
+*`contract: enforced: true` in `obt_logistics_diagnostics.yml` — dbt enforces column names, types, and constraints at Snowflake materialisation time. A schema deviation aborts the run before any test executes.*
+
+</details>
 
 <details>
 <summary>📸 <strong>Evidence — dbt Test Results: 34 Passed, 1 Warning, 0 Errors</strong></summary>
