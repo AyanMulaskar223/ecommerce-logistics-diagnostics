@@ -924,6 +924,12 @@ data/processed/              aggregated CSVs / parquet outputs
 visuals/                     exported PNG charts
 ```
 
+
+* ✍️ **The Business ROI & Architecture:** Read the full architectural breakdown and executive case study on my [Medium Profile](https://medium.com/@ayanmulaskar).
+
+
+
+
 ---
 
 ## 7️⃣ About & Credentials
